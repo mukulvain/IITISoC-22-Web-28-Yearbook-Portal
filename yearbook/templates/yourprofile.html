@@ -1,0 +1,66 @@
+{% load static %}
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">    
+    <link rel="stylesheet" href="{% static '/css/bootstrap.min.css' %}">
+    <link rel="stylesheet" href="{% static '/css/style.css' %}">  
+    <title>Hello, world!</title>
+  </head>
+  <body>
+    <nav class="navbar navbar-expand-lg navbar-dark bg-dark">              
+        <div class="collapse navbar-collapse" id="navbarSupportedContent">
+          <ul class="navbar-nav mr-auto">
+            <li class="nav-item active">
+              <a class="nav-link" href="/">Home</a>
+            </li>            
+            <li class="nav-item active">
+                <a class="nav-link" href="/">About</a>
+              </li>            
+          </ul>                    
+        </div>   
+        <a href="edit_detail/{{user.username}}">
+            <button class="btn btn-primary btnx">
+              Edit Details
+            </button> 
+          </a>                   
+      </nav>       
+      {% for s in student %}
+      {% if s.username == user.username %}
+      {% if s.fname == '' %}    
+      <br/>
+      <div class="container mt-4">
+        <h1>Create Your Profile </h1> 
+        <a href="edit_detail/{{user.username}}">
+          <button class="btn btn-primary btnx">
+            Create Profile
+          </button> 
+        </a>
+      </div>
+      {% else %} 
+      <div class="container mt-4">
+        <img src="{{s.image.url}}" alt="..." class="imgx" style="height: 100px; width:160px;"/>
+        <a href="profpic"><button class="btn btn-primary">Edit Profile Photo</button></a>
+        <h1>
+            Your Name: {{s.fname}} {{s.lname}}
+        </h1>
+        <br/>
+        <h2>                                          
+            Your Year: {{s.year}}          
+        </h2>
+        <h2>
+          Your Branch: {{s.branch}}
+      </h2>      
+      <h2>
+        To see/approve your comments and memories - <a href="year/branch/{{s.year}}/viewstudent/{{s.username}}" class="btn btn-primary">Click Here</a>
+      </h2>      
+    </div>
+      
+      {% endif %}
+    {% endif %}
+  {% endfor %}
+  <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js" integrity="sha384-DfXdz2htPH0lsSSs5nCTpuj/zy4C+OGpamoFVy38MVBnE+IbbVYUew+OrCXaRkfj" crossorigin="anonymous"></script>
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.5.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-ho+j7jyWK8fNQe+A12Hb8AhRq26LrZ/JpcUGGOn+Y7RsweNrtN/tE3MoK7ZeZDyx" crossorigin="anonymous"></script>
+  </body>
+</html>
