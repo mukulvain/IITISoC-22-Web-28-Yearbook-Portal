@@ -1,0 +1,25 @@
+body{
+    background: rgb(39, 39, 54);
+    color: rgb(216, 216, 216);
+}
+.h2x{
+    color:red;
+}
+ul li:hover{
+    border-radius: 5px;
+    background-color: rgb(33, 33, 35);
+}
+.card{
+    margin-top: 30px;
+    color:black;
+}
+.pushcont{
+    margin-top: 2%;
+}
+.btnx{
+    margin-left:10px;
+    margin-right:10px;
+}
+.btnxx{
+    margin-right: 0;
+}
