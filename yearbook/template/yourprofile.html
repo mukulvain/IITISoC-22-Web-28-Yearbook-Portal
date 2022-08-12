@@ -1,0 +1,68 @@
+{% load static %}
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">    
+    <link rel="stylesheet" href="{% static '/css/bootstrap.min.css' %}">
+    <link rel="stylesheet" href="{% static '/css/style.css' %}">  
+    <title>Hello, world!</title>
+  </head>
+  <body>
+    <nav class="navbar navbar-expand-lg navbar-dark bg-dark">              
+        <div class="collapse navbar-collapse" id="navbarSupportedContent">
+          <ul class="navbar-nav mr-auto">
+            <li class="nav-item active">
+              <a class="nav-link" href="/">Home</a>
+            </li>                                 
+          </ul>                    
+        </div>   
+        <a href="edit_detail/{{user.username}}">
+            <button class="btn btn-primary btnx">
+              Edit Details
+            </button> 
+          </a>                   
+      </nav>             
+      {% if student.fname == '' %}    
+      <br/>
+      <div class="container mt-4">
+        <h1>Create Your Profile </h1> 
+        <a href="edit_detail/{{user.username}}">
+          <button class="btn btn-primary btnx">
+            Create Profile
+          </button> 
+        </a>
+      </div>
+      {% else %} 
+      <div class="container mt-4">
+        <img src="{{student.image.url}}" alt="..." class="imgx" style="height: 100px; width:160px;"/>
+        <a onclick="editphoto()"><button class="btn btn-primary">Edit Profile Photo</button></a>
+        <p id="photo"></p>
+        <h1>
+            Your Name: {{student.fname}} {{student.lname}}
+        </h1>
+        <br/>
+        <h2>                                          
+            Your Year: {{student.year}}          
+        </h2>
+        <h2>
+          Your Branch: {{student.branch}}
+      </h2>     
+      <h2>
+        Yearbook Quote: {{student.quote}}
+      </h2>    
+      <h2>
+        To see/approve your comments and memories - <a href="year/branch/{{student.year}}/viewstudent/{{student.username}}" class="btn btn-primary">Click Here  <span class="badge badge-light">{{count}}</span></a>
+      </h2>      
+    </div>
+      
+      {% endif %}   
+  <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js" integrity="sha384-DfXdz2htPH0lsSSs5nCTpuj/zy4C+OGpamoFVy38MVBnE+IbbVYUew+OrCXaRkfj" crossorigin="anonymous"></script>
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.5.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-ho+j7jyWK8fNQe+A12Hb8AhRq26LrZ/JpcUGGOn+Y7RsweNrtN/tE3MoK7ZeZDyx" crossorigin="anonymous"></script>
+  <script>
+    function editphoto(){
+      document.getElementById('photo').innerHTML='<form method="POST" enctype="multipart/form-data">{% csrf_token %}<h1>Edit Profile Photo</h1><input required type="file" style="background-color: rgb(39, 39, 54); border: none; color: white; padding: 0;" class="form-control" id="exampleFormControlInput1" name="image"><input type="hidden" class="form-control" id="exampleFormControlInput1" name="username" value="{{student.username}}"><br/><input type="submit" class="btn btn-primary" href="yourprofile" value="Edit"/></form> '
+    }
+  </script>
+  </body>
+</html>

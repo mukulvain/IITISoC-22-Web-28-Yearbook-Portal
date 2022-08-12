@@ -1,4 +1,5 @@
 from email.policy import default
+from pyexpat import model
 from django.db import models
 from django.contrib.auth.models import User
 
@@ -26,7 +27,8 @@ class Student(models.Model):
     branch=models.CharField(max_length=20, default='')      
     year=models.IntegerField(blank=True, null=True, default=0)
     email = models.CharField(max_length=100, default='')
-    image = models.ImageField(default='1920_1.jpg')     
+    image = models.ImageField(default='1920_1.jpg')    
+    quote = models.CharField(max_length=5000, default='None')
 
     def __str__(self):
         return self.username
