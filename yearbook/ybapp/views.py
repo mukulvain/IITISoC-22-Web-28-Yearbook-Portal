@@ -11,6 +11,10 @@ from django.core.mail import send_mail
 
 # Create your views here.
 
+@unauthenticated_user
+def landing(request):
+        return render(request, 'landingpage.html')
+
 def index(request):                
         if request.method == 'POST':
                 search = request.POST.get('search')
@@ -93,7 +97,6 @@ def createstudent(request):
                 return redirect('/student')
         return redirect('/student')    
 
-
 def vstudent(request, pk, sk):
         student = Student.objects.all()
         mm = Memories.objects.filter(memuname = sk)
@@ -123,8 +126,7 @@ def deletemem(request, pk, sk, mk):
         Memories.objects.filter(id=mk).delete()             
         messages.info(request, 'Memory Deleted')
         return redirect('/year/branch/'+str(pk)+'/viewstudent/'+sk)
-
-@unauthenticated_user
+        
 def register(request):        
         if request.method == 'POST':                   
                 username = request.POST.get('username') 
@@ -138,10 +140,10 @@ def register(request):
                         return redirect('/register')    
 
                 email = request.POST.get('email')                 
-                strx = '@'
+                strx = '@iiti.ac.in'
                 result = email.find(strx)
                 if result == -1:        
-                        messages.info(request,'Invalid Email')
+                        messages.info(request,'Not an IITI E-mail')
                         return redirect('/register')                
 
                 if User.objects.filter(email = email).first():
@@ -181,7 +183,7 @@ def loginuser(request):
                         return redirect('/login')                
                 if user.is_staff:
                         dj_login(request, user)
-                        return redirect('/')
+                        return redirect('/index')
                 else:
                         logout(request)
                 user_obj = User.objects.filter(username = username).first()
@@ -201,9 +203,9 @@ def loginuser(request):
                 per = Student.objects.get(username = username)
                 dj_login(request, user)
                 if per.fname == '':
-                        return redirect('/edit_detail/'+username)     
+                        return redirect('yourprofile/edit_detail/'+username)     
                 else:   
-                        return redirect('/')
+                        return redirect('/index')
 
         return render(request, 'login.html')
 
@@ -222,16 +224,29 @@ def loginadmin(request):
                         return redirect('/login')
                 
                 dj_login(request, user)
-                return redirect('/')
+                return redirect('/index')
         return render(request, 'login_admin.html')
 def logoutuser(request):
         logout(request)
         messages.info(request, 'Logged out')
-        return redirect('/')
+        return redirect('/index')
 
-def yourprofile(request):
-        st = Student.objects.all()
-        return render(request,'yourprofile.html', {'student': st})
+def yourprofile(request, pk):
+        if request.method == 'POST':
+                img = request.FILES.get('image')
+                username = request.POST.get('username')
+                stu = Student.objects.filter(username = username).first()
+                stu.image = img
+                stu.save()
+                return redirect('/yourprofile/'+username)
+
+        st = Student.objects.filter(username = pk).first()
+        cc = Comments.objects.all()
+        x=0
+        for c in cc:
+                if c.recieveruname == pk and c.is_approved == False:
+                        x=x+1                                
+        return render(request,'yourprofile.html', {'student': st, 'count':x})
 
 def edit_detail(request, pk):
         st = Student.objects.filter(username = pk).first()
@@ -253,7 +268,8 @@ def edituserdetail(request, pk):
                 email = request.POST.get('email') 
                 year = request.POST.get('year')   
                 branch = request.POST.get('branch')                   
-                username = request.POST.get('username')        
+                username = request.POST.get('username')   
+                quote = request.POST.get('quote')     
                 fname = fname[:1].upper() + fname[1:]
                 lname = lname[:1].upper() + lname[1:]
                 student.email=email
@@ -261,9 +277,10 @@ def edituserdetail(request, pk):
                 student.lname = lname                                
                 student.year = year
                 student.username=username  
-                student.branch=branch                                
+                student.branch=branch 
+                student.quote = quote                               
                 student.save()        
-        return redirect('/yourprofile') 
+        return redirect('/yourprofile/'+username) 
 
 def edituserdetail_admin(request, sk, pk):                                
         if request.method == 'POST':                                
@@ -273,7 +290,8 @@ def edituserdetail_admin(request, sk, pk):
                 email = request.POST.get('email') 
                 year = request.POST.get('year')   
                 branch = request.POST.get('branch')                   
-                username = request.POST.get('username')        
+                username = request.POST.get('username')   
+                quote = request.POST.get('quote')        
                 fname = fname[:1].upper() + fname[1:]
                 lname = lname[:1].upper() + lname[1:]
                 student.email=email
@@ -281,28 +299,22 @@ def edituserdetail_admin(request, sk, pk):
                 student.lname = lname                                
                 student.year = year
                 student.username=username  
-                student.branch=branch                                
+                student.branch=branch 
+                student.quote = quote                               
                 student.save()        
         return redirect('/year/branch/'+str(sk)+'/viewstudent/'+username)
-
-def profpic(request):
-        st = Student.objects.all()
-        if request.method == 'POST':
-                img = request.FILES.get('image')
-                username = request.POST.get('username')
-                stu = Student.objects.filter(username = username).first()
-                stu.image = img
-                stu.save()
-                return redirect('/yourprofile')
-        return render(request, 'profpic.html', {'student':st})
 
 def year(request, pk):        
         br = Branch.objects.all()
         return render(request, 'year.html', {'branch': br, 'year': int(pk) })
 
 def branch(request, pk, sk):
-        st = Student.objects.filter(year = pk, branch = sk)
-        return render(request,'branch.html', {'student': st})
+        if sk == 'all':
+                st = Student.objects.filter(year = pk)
+                return render(request, 'branch.html', {'student': st})
+        else:
+                st = Student.objects.filter(year = pk, branch = sk)
+                return render(request,'branch.html', {'student': st})
 
 def createcomment(request, pk, sk):
         if request.method == 'POST':                
@@ -315,15 +327,46 @@ def createcomment(request, pk, sk):
                 comment.recieveruname = recieveruname
                 student = Student.objects.filter(username = recieveruname).first()
                 comment.save()
-                messages.info(request, 'Comment Sent to '+ student.fname +' for approval')
+                
+                cc = Comments.objects.all()
+                x=1
+                for c in cc:
+                        if c.recieveruname == recieveruname and c.is_approved == False:                                
+                                x=x+1                                
+                if x > 4:
+                        messages.info(request, 'Comment Sent to '+ student.fname +' for approval who has many pending comments')        
+                else:        
+                        messages.info(request, 'Comment Sent to '+ student.fname +' for approval')
         return redirect('/year/branch/'+str(pk)+'/viewstudent/'+sk) 
+
+def createcomment2(request, sk):
+        if request.method == 'POST':                
+                comment = Comments()
+                content = request.POST.get('content')
+                senderuname = request.POST.get('senderuname')      
+                recieveruname = request.POST.get('recieveruname')                                                                                                                 
+                comment.content = content
+                comment.senderuname = senderuname
+                comment.recieveruname = recieveruname
+                student = Student.objects.filter(username = recieveruname).first()
+                comment.save()
+                cc = Comments.objects.all()
+                x=1
+                for c in cc:
+                        if c.recieveruname == recieveruname and c.is_approved == False:                                
+                                x=x+1                                
+                if x > 4:
+                        messages.info(request, 'Comment Sent to '+ student.fname +' for approval who has many pending comments')        
+                else:        
+                        messages.info(request, 'Comment Sent to '+ student.fname +' for approval')
+        return redirect('/viewstudent/'+sk) 
         
 def approve(request, pk, sk, mk):   
         comment = Comments.objects.get(id=mk)     
         comment.is_approved = True
         comment.save()
         messages.info(request, 'Comment Approved')
-        return redirect('/year/branch/'+str(pk)+'/viewstudent/'+sk) 
+        return redirect('/year/branch/'+str(pk)+'/viewstudent/'+sk)      
 
 def decline(request, pk, sk, mk):
         Comments.objects.filter(id=mk).delete()             

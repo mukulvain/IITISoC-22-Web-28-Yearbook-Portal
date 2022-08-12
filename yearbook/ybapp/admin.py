@@ -1,3 +1,4 @@
+from tkinter import Y
 from django.contrib import admin
 from .models import Memories, Student, Year, Branch, Comments, Student
 # Register your models here.
